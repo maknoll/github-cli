@@ -10,14 +10,15 @@ case ARGV.shift
 when 'create'
 	name = ARGV[0]
 	name ||=  File.basename Dir.pwd
+	repository = Github::Repository.new(:name=>name)
 
 	begin
-		repository = client.create(:name => name)
+		response = client.create repository
 	rescue => error
 		puts error.message
 	end
 
-	repository and `git remote add github #{repository['ssh_url']}`
+	response and `git remote add github #{response.ssh_url}`
 else
 	usage
 end

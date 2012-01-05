@@ -14,18 +14,31 @@ class Github::Client
 		@password = password
 	end
 
-	def create repository = {}
-		response = post "/user/repos", repository.to_json
+	def create repository
+		response = request :post, "/user/repos", repository.to_json
 
-		response.code == '201' and JSON.parse response.body or
+		response.code == '201' and 
+			Github::Repository.new(JSON.parse response.body) or
 			raise "repository already exists"
 	end
 
+
 	private
 
-	def post resource, payload = ""
+	def request method, resource, payload = nil
 		uri = URI('https://api.github.com' + resource)
-		request = Net::HTTP::Post.new(uri.request_uri)
+		request = case method
+		when :get
+			Net::HTTP::Get.new(uri.request_uri)
+		when :post
+			Net::HTTP::Post.new(uri.request_uri)
+		when :patch
+			Net::HTTP::Patch.new(uri.request_uri)
+		when :delete
+			Net::HTTP::Delete.new(uri.request_uri)
+		else
+			raise "method not supported"
+		end
 		request.basic_auth @user, @password
 		request.body = payload
 
@@ -34,5 +47,6 @@ class Github::Client
 			http.request(request)
 		end
 		response
+
 	end
 end
