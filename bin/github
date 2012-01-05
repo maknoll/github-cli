@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.expand_path('../lib', File.dirname(__FILE__))
+
+require 'github-cli'
+
+client = Github::Client.open(File.join Dir.home, '.github')
+
+case ARGV.shift
+when 'create'
+	name = ARGV[0]
+	name ||=  File.basename Dir.pwd
+
+	begin
+		repository = client.create(:name => name)
+	rescue => error
+		puts error.message
+	end
+
+	repository and `git remote add github #{repository['ssh_url']}`
+else
+	usage
+end
