@@ -15,7 +15,7 @@ class Github::Client
 	end
 
 	def create repository = {}
-		response = post "/user/repos", repository
+		response = post "/user/repos", repository.to_json
 
 		response.code == '201' and JSON.parse response.body or
 			raise "repository already exists"
@@ -27,7 +27,7 @@ class Github::Client
 		uri = URI('https://api.github.com' + resource)
 		request = Net::HTTP::Post.new(uri.request_uri)
 		request.basic_auth @user, @password
-		request.body = payload.to_json
+		request.body = payload
 
 		response = Net::HTTP.start(uri.host, uri.port, 
 							  :use_ssl => uri.scheme == 'https') do |http|
