@@ -4,7 +4,29 @@ $:.unshift File.expand_path('../lib', File.dirname(__FILE__))
 
 require 'github-cli'
 
-client = Github::Client.open(File.join Dir.home, '.github')
+CONFIG_FILE = File.join Dir.home, '.github'
+
+client = if File.exists?(CONFIG_FILE)
+	Github::Client.open(CONFIG_FILE)
+else
+	puts 'Please enter your Github credentials.'
+	print 'User: '
+	user = STDIN.gets.chomp
+	print 'Password: '
+	system 'stty -echo'
+	trap("INT") do
+		system 'stty echo'
+		exit
+	end
+	password = STDIN.gets.chomp
+	system 'stty echo'
+
+	File.open(CONFIG_FILE, 'w') do |file|
+		file.puts({'user' => user, 'password' => password}.to_yaml)
+	end
+
+	Github::Client.new user, password
+end
 
 case ARGV.shift
 when 'create'
@@ -20,5 +42,6 @@ when 'create'
 
 	response and `git remote add github #{response.ssh_url}`
 else
-	usage
+	puts "COMMANDS"
+	puts "create [name]    # create repository"
 end
