@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
 	gem.email       = "martinknoll@me.com"
 	gem.homepage    = "https://github.com/maknoll/github-cli"
 	gem.summary     = "Github Command Line Interface"
-	gem.description = "This allows using Github via shell commands similar to the Heroku CLI"
+	gem.description = "Create Github repositories from the command line."
 	gem.executables = "github"
 
 	gem.files = 
